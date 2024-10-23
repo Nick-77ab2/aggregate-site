@@ -1,13 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const SearchLocation = () => {
 
     const navigate = useNavigate();
+    const {state} = useLocation();
+    const {location} = state;
 
     return (
         <div>
-            <h1>SearchLocation</h1>
+            <h1> Information on {location}:</h1>
             <h2>
                 <button onClick={() => navigate('/')}>Home</button>
             </h2>
