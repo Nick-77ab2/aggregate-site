@@ -1,6 +1,8 @@
 from flask import Flask;
 import rss
 
+rss.bootstrapping()
+
 app = Flask("rss");
 
 @app.route("/")

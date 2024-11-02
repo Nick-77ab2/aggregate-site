@@ -1,16 +1,19 @@
 import sqlite3
-import feedparser
 from time import mktime
+import feedparser
 
 def create_entries_table():
+    #TODO: NEEDS reasonable schema here
+
     # initialize table
     # currently only stores title, summary, gdacs_country
     entries_table = '''CREATE TABLE IF NOT EXISTS entries (
-                    unixTimetamp INTEGER PRIMARY KEY,
-                    title TEXT NOT NULL PRIMARY KEY,
+                    unixTimetamp INTEGER,
+                    title TEXT NOT NULL,
                     disasterID TEXT NOT NULL,
                     summary TEXT NOT NULL,
-                    country TEXT NOT NULL
+                    country TEXT NOT NULL,
+                    PRIMARY KEY (unixTimetamp, title)
                 );'''
     try:
         cursor = database.cursor()
@@ -23,22 +26,21 @@ def create_entries_table():
 def populate_entries():
     try:
         cursor = database.cursor()
-        insert_statement = '''INSERT INTO entries(unixTimetamp,title,disasterID,summary,country,image)
-                                VALUES(?,?,?,?,?,?) '''
+        insert_statement = '''INSERT INTO entries(unixTimetamp,title,disasterID,summary,country)
+                                VALUES(?,?,?,?,?) '''
         for entry in newsfeed.entries:
             disasterid = entry.id
             unixTimetamp = int(mktime(entry.published_parsed))
             title = entry.title
             summary = entry.summary
             country = entry.gdacs_country # comma separated if multiple
-            image = entry.gdacs_mapimage
 
             cursor.execute(insert_statement, (unixTimetamp, 
                                               title,
                                               disasterid,
                                               summary, 
                                               country, 
-                                              image))
+                                              ))
 
             database.commit()
 
@@ -60,4 +62,5 @@ def bootstrapping():
 feed_url = "https://www.gdacs.org/xml/rss.xml"
 db_file = "feed.db" 
 newsfeed = feedparser.parse(feed_url)
-database = sqlite3.connect(db_file)
+database = sqlite3.connect(db_file, check_same_thread=False) # python's 3.11's sqlite3 is compiled with threadsafety already
+
