@@ -8,5 +8,5 @@ Activate the virtual env:
 Install dependencies:
 `pip install -r requirements.txt`
 
-Run the script:
-`python rss.py`
+Run the server:
+`flask --app backend run`

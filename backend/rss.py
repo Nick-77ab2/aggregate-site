@@ -2,7 +2,7 @@ import sqlite3
 import feedparser
 from time import mktime
 
-def create_entries_table(database):
+def create_entries_table():
     # initialize table
     # currently only stores title, summary, gdacs_country
     entries_table = '''CREATE TABLE IF NOT EXISTS entries (
@@ -21,7 +21,7 @@ def create_entries_table(database):
     except sqlite3.Error as e:
         print(e)
 
-def populate_entries(newsfeed, database):
+def populate_entries():
     try:
         cursor = database.cursor()
         insert_statement = '''INSERT INTO entries(id, unixTimetamp,title,summary,country,image)
@@ -46,11 +46,11 @@ def populate_entries(newsfeed, database):
     except sqlite3.Error as e:
         print(e, "from popEn")
 
-                     
-if __name__ == "__main__":
-    feed_url = "https://www.gdacs.org/xml/rss.xml"
-    db_file = "feed.db" 
-    newsfeed = feedparser.parse(feed_url)
-    database = sqlite3.connect(db_file)
-    create_entries_table(database)
-    populate_entries(newsfeed, database)
+def bootstrapping():
+    create_entries_table()
+    populate_entries()
+
+feed_url = "https://www.gdacs.org/xml/rss.xml"
+db_file = "feed.db" 
+newsfeed = feedparser.parse(feed_url)
+database = sqlite3.connect(db_file)
