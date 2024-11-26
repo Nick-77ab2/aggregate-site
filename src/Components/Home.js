@@ -1,41 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import GetCities from './getCities';
 import './Home.css';
 import useGeoLocation from './useGeolocation';
 
 export const Home = () => {
+    const [cityData, setCityData] = useState(null); // state to hold cityData
+    const location = useLocation();  // to get location data (state)
     const { city, lat, lon} = useGeoLocation();
     const [cities, setCities] = useState([]);
+    const [topCities, setTopCities] = useState([]);
+    const [topCitiesObj, setTopCitiesObj] = useState([]);
+    const [searchLocation, setSearchLocation] = useState();
+
+    const handleNavigate = (cityData, location) => {
+        console.log('sending over data: ', cityData)
+        navigate(location, {state: { city: cityData}});
+    }
+    const removeCity = (cityToRemove) => {
+        setCities((prevCities) =>
+          prevCities.filter((cityObj) => cityObj.city !== cityToRemove)
+        );
+      };
+    const getTopCities = (cities) => {
+        // Sort the cities by population in descending order
+        const sortedCities = cities.sort((a, b) => b.population - a.population);
+      
+        // Get the names of the top two cities
+        const topCities = sortedCities.slice(0, 2).map((cityObj) => cityObj.city);
+        setTopCitiesObj(sortedCities.slice(0, 2));
+      
+        return topCities;
+      };
     const navigate = useNavigate();
     const [type,setType] = useState('Earthquakes');
     const [time,setTime] = useState('Current');
-    const [location,setLocation] = useState('');
+
     useEffect(() => {
+        // Only call the API if lat, lon are available and cityData is null
         const fetchCities = async () => {
-            if (lat != null && lon != null) {
-                try {
-                    const { otherCities } = await GetCities(lat, lon);
-                    setCities(otherCities);
-                    console.log("Fetched Cities:", otherCities);
-                } catch (error) {
-                    console.error("Error fetching cities:", error);
-                }
+            console.log('cityData:',cityData);
+          if (lat != null && lon != null && !cityData) {
+            try {
+              const { otherCities } = await GetCities(lat, lon);
+              setCities(otherCities);
+              console.log("Fetched Cities:", otherCities);
+            } catch (error) {
+              console.error("Error fetching cities:", error);
             }
+          }
         };
         fetchCities();
-    }, [lat, lon]); // Run effect only when lat or lon changes
+      }, [lat, lon, cityData]); // Run effect when lat, lon, or cityData changes // Run effect only when lat or lon changes
+    
+      useEffect(() => {
+        if (location.state?.city) {
+          setCityData(location.state.city);
+        }
+      }, [location]);
+
+    // Remove the city from the cities array when the city exists
+    useEffect(() => {
+        if (city && cities.some((cityObj) => cityObj.city === city)) {
+            removeCity(city);
+        }
+    }, [city, cities]); // Runs whenever `city` or `cities` changes
+
+    // Update the top cities whenever the cities list changes
+    useEffect(() => {
+        setTopCities(getTopCities(cities));
+    }, [cities]); // Runs whenever `cities` changes
     return (
         <div>
             <h1>Home</h1>
             <h2>
-                <button onClick={() => navigate('/LocationA')}>Location A</button>
+                <button onClick={() => handleNavigate(topCitiesObj.length>0 ? topCitiesObj:cityData,'/LocationA')}>{cityData ? cityData[0].city:topCities[0]}</button>
                 |
-                <button onClick={() => navigate('/LocationB')}>Location B</button>
+                <button onClick={() => handleNavigate(topCitiesObj.length>0? topCitiesObj:cityData,'/LocationB')}>{cityData ? cityData[1].city:topCities[1]}</button>
             </h2>
             <div className="search">
-                <input type="text" placeholder="Search for locations..." value= {location} onChange={(e) => setLocation(e.target.value)}/>
-                <button onClick={() => navigate('/SearchLocation', {state: {location: location}})}>Search</button>
+                <input type="text" placeholder="Search for locations..." value= {searchLocation} onChange={(e) => setSearchLocation(e.target.value)}/>
+                <button onClick={() => navigate('/SearchLocation', {state: {theSearchLocation: searchLocation}})}>Search</button>
             </div>
             <div>
                 <h3>{city}</h3>

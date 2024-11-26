@@ -7,7 +7,7 @@ export default function GetCities(lat,lon) {
     const options = {
         method: 'GET',
         url: baseUrl + lat.toString() + lon.toString() + final,
-        params: {radius: '100', minPopulation: '10000'},
+        params: {radius: '100', minPopulation: '100000'},
         headers: {
             'x-rapidapi-key': '50894cab9dmshc84f5d31c9ed649p12b042jsnbd850e8fdc5f',
             'x-rapidapi-host': 'wft-geo-db.p.rapidapi.com'
@@ -19,7 +19,7 @@ export default function GetCities(lat,lon) {
    .request(options)
    .then((res) => {
        if (res.status === 200) {
-           return { otherCities: res.data };
+           return { otherCities: res.data.data };
        } else {
            console.error(`API responded with status: ${res.status}`);
            return { otherCities: [] };
