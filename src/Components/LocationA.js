@@ -9,10 +9,10 @@ export const LocationA = () => {
     const cityDatas = location.state?.city;
     const localCity = cityDatas[0];
 
-    const [type,setType] = useState('');
-    const [time,setTime] = useState('');
+    const [type,setType] = useState('Earthquakes');
+    const [time,setTime] = useState('Current');
     const handleNavigate = (cityData, location) => {
-        console.log('Navigating with city:', cityData);
+        //console.log('Navigating with city:', cityData);
         navigate(location, {state: { city: cityData}});
     }
     return (
@@ -29,7 +29,7 @@ export const LocationA = () => {
                 <div className="locationA" >
                 <header className='typeParent'><span className='type' onClick={() =>{setType("Earthquakes");} }>Earthquakes</span> | <span className='type' onClick={() =>{setType("Tropical Cyclones");}}>Tropical-Cyclones</span> | <span className='type' onClick={() =>{setType("Floods");}}>Floods</span> | <span className='type' onClick={() =>{setType("Volcanoes");}}>Volcanoes</span> | <span className='type' onClick={() =>{setType("Droughts");}}>Droughts</span> | <span className='type' onClick={() =>{setType("Forest Fires");}}>Forest-Fires</span></header>
                 <div className='data'>
-                {time} {type} at {localCity.city}
+                {time} {type} near {localCity.city}
                 </div>
                 <footer className='timeParent'><span className='time' onClick={() =>{setTime("Past");}}>Past</span> | <span className='time' onClick={() =>{setTime("Current");}}>Current</span> | <span className='time' onClick={() =>{setTime("Future");}}>Future</span></footer>
                 </div>
