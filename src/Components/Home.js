@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import GetCities from './getCities';
-import GetCityDetails from './GetCityDetails';
+import { GetCityDetails } from './GetCityDetails';
 import './Home.css';
 import useGeoLocation from './useGeolocation';
 
@@ -12,8 +12,8 @@ export const Home = () => {
     const [cities, setCities] = useState([]);
     const [topCities, setTopCities] = useState([]);
     const [topCitiesObj, setTopCitiesObj] = useState([]);
-    const [searchLocation, setSearchLocation] = useState();
-    const [searchCity, setSearchCity] = useState([]);
+    const [searchLocation, setSearchLocation] = useState('');
+    const [searchCity, setSearchCity] = useState(null);
 
     const handleNavigate = (cityData, location) => {
         console.log('sending over data: ', cityData)
@@ -43,15 +43,26 @@ export const Home = () => {
     
     const searchForCity = async (location) =>{
       try {
-        console.log("Fetching city details for:", searchLocation);
-        const theCity = await GetCityDetails(searchLocation);
-        setSearchCity(theCity);
-        console.log("Fetched city:", theCity);
-        handleSearch(topCitiesObj.length>0? topCitiesObj:cityData, searchLocation, '/SearchLocation');
+        console.log("Fetching city details for:", location);
+        const {lat,lng} = await GetCityDetails(location);
+        console.log("Got the location: ", lat, lng);
+        const newCity = {location: location, lat: lat, lng: lng};
+        setSearchCity(newCity);
         } catch (error) {
             console.error("Error fetching city details:", error);
         }
     }
+    useEffect(() => {
+        if (searchCity) {
+            console.log("Search city updated:", searchCity);
+            handleSearch(
+                topCitiesObj.length > 0 ? topCitiesObj : cityData,
+                searchCity,
+                '/SearchLocation'
+          );
+        }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [searchCity]);
 
     useEffect(() => {
         // Only call the API if lat, lon are available and cityData is null
