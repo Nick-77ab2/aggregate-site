@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import GetCities from './getCities';
+import GetCityDetails from './GetCityDetails';
 import './Home.css';
 import useGeoLocation from './useGeolocation';
 
@@ -12,6 +13,7 @@ export const Home = () => {
     const [topCities, setTopCities] = useState([]);
     const [topCitiesObj, setTopCitiesObj] = useState([]);
     const [searchLocation, setSearchLocation] = useState();
+    const [searchCity, setSearchCity] = useState([]);
 
     const handleNavigate = (cityData, location) => {
         console.log('sending over data: ', cityData)
@@ -38,6 +40,18 @@ export const Home = () => {
     const navigate = useNavigate();
     const [type,setType] = useState('Earthquakes');
     const [time,setTime] = useState('Current');
+    
+    const searchForCity = async (location) =>{
+      try {
+        console.log("Fetching city details for:", searchLocation);
+        const theCity = await GetCityDetails(searchLocation);
+        setSearchCity(theCity);
+        console.log("Fetched city:", theCity);
+        handleSearch(topCitiesObj.length>0? topCitiesObj:cityData, searchLocation, '/SearchLocation');
+        } catch (error) {
+            console.error("Error fetching city details:", error);
+        }
+    }
 
     useEffect(() => {
         // Only call the API if lat, lon are available and cityData is null
@@ -84,7 +98,7 @@ export const Home = () => {
               </h2>
               <div className="search">
                   <input type="text" placeholder="Search for locations..." value= {searchLocation} onChange={(e) => setSearchLocation(e.target.value)}/>
-                  <button onClick={() => handleSearch(topCitiesObj.length>0? topCitiesObj:cityData, searchLocation, '/SearchLocation')}>Search</button>
+                  <button onClick={() => searchForCity(searchLocation) }>Search</button>
               </div>
               <div>
                   <h3>{city}</h3>

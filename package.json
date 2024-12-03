@@ -10,10 +10,10 @@
     "express": "^4.21.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-geocode": "^1.0.0-alpha.1",
     "react-scripts": "5.0.1",
     "sqlite3": "^5.1.7",
-    "web-vitals": "^2.1.4",
-    "wikidata-search": "^1.0.3"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",

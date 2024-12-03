@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { /*useEffect, useRef,*/ useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import GetCityDetails from './GetCityDetails';
 export const SearchLocation = () => {
 
     const navigate = useNavigate();
@@ -8,6 +7,7 @@ export const SearchLocation = () => {
     const cityDatas = location.state?.city;
     const searchLocation = location.state?.search;
     const [city, setCity] = useState([]);
+    /*
     const hasFetched = useRef(false); // UseRef to track if the API call has been made
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export const SearchLocation = () => {
 
         fetchCity();
     }, [searchLocation]);
-
+*/
     const handleNavigate = (cityData, location) => {
         //console.log('Navigating with city:', cityData);
         navigate(location, {state: { city: cityData}});
