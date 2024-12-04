@@ -1,4 +1,4 @@
-from flask import Flask;
+from flask import Flask, request;
 import rss
 
 rss.bootstrapping()
@@ -18,4 +18,5 @@ def update():
 def query():
     #TODO: call rss.query() here, interpret the result, and send back probably JSON
     # should assume IP of request as location/country if not specified
-    return "";
+    result = rss.query(request.args.get('country'))
+    return result

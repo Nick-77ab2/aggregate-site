@@ -51,8 +51,17 @@ def populate_entries():
 #   - countries
 #   - regions
 #   - ID?
-def query():
-    return 0;
+def query(country):
+    cursor = database.cursor()
+    print(country)
+    
+    query = '''SELECT * FROM entries WHERE country LIKE ? '''
+    cursor.execute(query, (f'%{country}', ))
+
+    headers = list(map(lambda attr : attr[0], cursor.description))
+    results = [{header:row[i] for i, header in enumerate(headers)} for row in cursor]
+    
+    return results
 
 
 def bootstrapping():
