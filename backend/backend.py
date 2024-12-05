@@ -18,5 +18,5 @@ def update():
 def query():
     #TODO: call rss.query() here, interpret the result, and send back probably JSON
     # should assume IP of request as location/country if not specified
-    result = rss.query(request.args.get('country'))
+    result = rss.query(request.args.get('lat'), request.args.get('long'))
     return result
