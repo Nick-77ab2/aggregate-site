@@ -63,35 +63,34 @@ def query(latitude, longitude):
     long_upper_limit = long
     long_lower_limit = long
 
-    sql_inputs = []
-
     lat_start = lat - 18
     lat_end = lat + 18
 
     # normalize latitude
-    if lat_start < -180:
-        lat_start += 360
-        lat_upper_limit = 180
-        lat_lower_limit = -180
-    elif lat_end >= 180:
-        lat_end -= 360
-        lat_upper_limit = 180
-        lat_lower_limit = -180
+    if lat_start < -90:
+        lat_start += 180
+        lat_upper_limit = 90
+        lat_lower_limit = -90
+    elif lat_end >= 90:
+        lat_end -= 180
+        lat_upper_limit = 90
+        lat_lower_limit = -90
     
     long_start = long - 18
     long_end = long + 18
     
     # normalize the longitude
-    if long_start < -90:
-        long_start += 180
-        long_upper_limit = 90
-        long_lower_limit = -90
-    elif long_end >= 90:
-        long_end -= 180
-        long_upper_limit = 90
-        long_lower_limit = -90
+    if long_start < -180:
+        long_start += 360
+        long_upper_limit = 180
+        long_lower_limit = -180
+    elif long_end >= 180:
+        long_end -= 360
+        long_upper_limit = 180
+        long_lower_limit = -180
 
     sql_inputs = (lat_start, lat_upper_limit, lat_lower_limit, lat_end, long_start, long_upper_limit, long_lower_limit, long_end )
+    print(sql_inputs)
 
     query = '''SELECT * FROM entries WHERE ((latitude BETWEEN ? AND ?) OR (latitude BETWEEN ? AND ?)) AND ((longitude BETWEEN ? AND ?) OR (longitude BETWEEN ? AND ?)) '''
     cursor.execute(query, sql_inputs)
