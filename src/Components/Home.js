@@ -118,7 +118,7 @@ export const Home = () => {
                   <div className='data'>
                   {time} {type} near {city} { /* placeholders */}
                   </div>
-                  <footer className='timeParent'><span className='time' onClick={() =>{setTime("Past");}}>Past</span> | <span className='time' onClick={() =>{setTime("Current");}}>Current</span> | <span className='time' onClick={() =>{setTime("Future");}}>Future</span></footer>
+                  <footer className='timeParent'><span className='time' onClick={() =>{setTime("Past");}}>Past</span> | <span className='time' onClick={() =>{setTime("Current");}}>Current</span></footer>
                   </div>
               </div>
           </div>
