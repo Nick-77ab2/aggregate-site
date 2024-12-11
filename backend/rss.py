@@ -63,8 +63,8 @@ def query(latitude, longitude):
     long_upper_limit = long
     long_lower_limit = long
 
-    lat_start = lat - 18
-    lat_end = lat + 18
+    lat_start = lat - 3
+    lat_end = lat + 3
 
     # normalize latitude
     if lat_start < -90:
@@ -76,8 +76,8 @@ def query(latitude, longitude):
         lat_upper_limit = 90
         lat_lower_limit = -90
     
-    long_start = long - 18
-    long_end = long + 18
+    long_start = long - 3
+    long_end = long + 3
     
     # normalize the longitude
     if long_start < -180:
