@@ -91,18 +91,17 @@ def populate_entries():
     except sqlite3.Error as e:
         print(e, " from popEn")
 
-def query(latitude, longitude):
-    cursor = database.cursor()
+def generate_proximity(lat, long, prox):
+    '''(NOT INTENDED FOR PUBLIC USAGE) calculate raw proximity, then normalize the result'''
 
-    lat = float(latitude)
-    long = float(longitude)
+    # upper and lower limit to make sure range stays sane as coordinates wrap all the way around
     lat_upper_limit = lat
     lat_lower_limit = lat 
     long_upper_limit = long
     long_lower_limit = long
 
-    lat_start = lat - 3
-    lat_end = lat + 3
+    lat_start = lat - prox
+    lat_end = lat + prox
 
     # normalize latitude
     if lat_start < -90:
@@ -114,8 +113,8 @@ def query(latitude, longitude):
         lat_upper_limit = 90
         lat_lower_limit = -90
     
-    long_start = long - 3
-    long_end = long + 3
+    long_start = long - prox
+    long_end = long + prox
     
     # normalize longitude
     if long_start < -180:
@@ -127,10 +126,26 @@ def query(latitude, longitude):
         long_upper_limit = 180
         long_lower_limit = -180
 
-    sql_inputs = (lat_start, lat_upper_limit, lat_lower_limit, lat_end, long_start, long_upper_limit, long_lower_limit, long_end )
-    print(sql_inputs)
+    return (lat_start, lat_upper_limit, lat_lower_limit, lat_end, long_start, long_upper_limit, long_lower_limit, long_end)
 
-    query = '''SELECT * FROM entries WHERE ((latitude BETWEEN ? AND ?) OR (latitude BETWEEN ? AND ?)) AND ((longitude BETWEEN ? AND ?) OR (longitude BETWEEN ? AND ?)) '''
+def query(latitude, longitude):
+    cursor = database.cursor()
+
+    lat = float(latitude)
+    long = float(longitude)
+    
+    # TC range is +-3, otherwise +-1
+    sql_inputs = generate_proximity(lat, long, 3) + generate_proximity(lat, long, 1) 
+
+    query = '''
+                SELECT * FROM (entries LEFT JOIN disasters ON entries.disasterID = disasters.disasterID) 
+                WHERE CASE  
+                WHEN type = "TC" THEN
+                ((latitude BETWEEN ? AND ?) OR (latitude BETWEEN ? AND ?)) AND ((longitude BETWEEN ? AND ?) OR (longitude BETWEEN ? AND ?)) 
+                ELSE
+                ((latitude BETWEEN ? AND ?) OR (latitude BETWEEN ? AND ?)) AND ((longitude BETWEEN ? AND ?) OR (longitude BETWEEN ? AND ?))
+                END;
+            '''
     cursor.execute(query, sql_inputs)
 
     headers = list(map(lambda attr : attr[0], cursor.description))
