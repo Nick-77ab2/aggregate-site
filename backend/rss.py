@@ -1,5 +1,5 @@
 import sqlite3
-from time import mktime, strptime
+from time import mktime, strptime, strftime, gmtime
 import feedparser
 
 def create_entries_table():
@@ -17,15 +17,15 @@ def create_entries_table():
                 );
 
                 CREATE TABLE IF NOT EXISTS entries (
-                    unixTimetamp INTEGER NOT NULL,
+                    timestamp INTEGER NOT NULL,
                     title TEXT NOT NULL,
                     disasterID TEXT NOT NULL,
                     alertLevel TEXT NOT NULL,
                     summary TEXT,
-                    country TEXT,
+                    countries TEXT,
                     latitude REAL NOT NULL,
                     longitude REAL NOT NULL,
-                    PRIMARY KEY (unixTimetamp, title),
+                    PRIMARY KEY (timestamp, title),
                     FOREIGN KEY (disasterID) REFERENCES disasters(disasterID)
                 );
 
@@ -42,7 +42,7 @@ def create_entries_table():
 def populate_entries():
     try:
         cursor = database.cursor()
-        insert_entry_statement = '''INSERT INTO entries(unixTimetamp, title, disasterID, alertLevel, summary, country, latitude, longitude)
+        insert_entry_statement = '''INSERT INTO entries(timestamp, title, disasterID, alertLevel, summary, countries, latitude, longitude)
                                 VALUES(?,?,?,?,?,?,?,?);'''
 
         upsert_disaster_statement = '''INSERT INTO disasters(disasterID, name, type, eventID, fromdate, todate) 
@@ -54,11 +54,11 @@ def populate_entries():
         for entry in newsfeed.entries:
             # entries table's value
             disasterid = entry.id
-            unixTimetamp = int(mktime(entry.published_parsed))
+            unixTimestamp = int(mktime(entry.published_parsed))
             title = entry.title
             alertLevel = entry.gdacs_alertlevel
             summary = entry.summary
-            country = entry.gdacs_country # comma separated if multiple
+            countries = entry.gdacs_country # comma separated if multiple
             lat = entry.geo_lat
             long = entry.geo_long
 
@@ -69,12 +69,12 @@ def populate_entries():
             fromdate = int(mktime(strptime(entry.gdacs_fromdate, '%a, %d %b %Y %H:%M:%S GMT')))
             todate = int(mktime(strptime(entry.gdacs_todate, '%a, %d %b %Y %H:%M:%S GMT')))
 
-            cursor.execute(insert_entry_statement, (unixTimetamp, 
+            cursor.execute(insert_entry_statement, (unixTimestamp, 
                                                     title,
                                                     disasterid,
                                                     alertLevel,
                                                     summary, 
-                                                    country,
+                                                    countries,
                                                     lat,
                                                     long
                                                     ))
@@ -150,6 +150,17 @@ def query(latitude, longitude):
 
     headers = list(map(lambda attr : attr[0], cursor.description))
     results = [{header:row[i] for i, header in enumerate(headers)} for row in cursor]
+
+    # converting all timestamps to ISO format
+    # split countries into a list for easy access
+    def isoformat(unixTimestamp):
+        return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime(unixTimestamp))
+    
+    for result in results:
+        result["timestamp"] = isoformat(result["timestamp"])
+        result["fromdate"] = isoformat(result["fromdate"])
+        result["todate"] = isoformat(result["todate"])
+        result["countries"] = result["countries"].split(', ')
     
     return results
 
