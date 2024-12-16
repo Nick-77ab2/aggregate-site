@@ -42,8 +42,11 @@ def create_entries_table():
 def populate_entries():
     try:
         cursor = database.cursor()
-        insert_entry_statement = '''INSERT INTO entries(timestamp, title, disasterID, alertLevel, summary, countries, latitude, longitude)
-                                VALUES(?,?,?,?,?,?,?,?);'''
+        insert_entry_statement = '''
+                                INSERT OR IGNORE
+                                INTO entries(timestamp, title, disasterID, alertLevel, summary, countries, latitude, longitude)
+                                VALUES(?,?,?,?,?,?,?,?);
+                                '''
 
         upsert_disaster_statement = '''INSERT INTO disasters(disasterID, name, type, eventID, fromdate, todate) 
                                             VALUES(?,?,?,?,?,?)
@@ -153,15 +156,6 @@ def query(latitude, longitude):
 
     # converting all timestamps to ISO format
     # split countries into a list for easy access
-    def isoformat(unixTimestamp):
-        return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime(unixTimestamp))
-    
-    for result in results:
-        result["timestamp"] = isoformat(result["timestamp"])
-        result["fromdate"] = isoformat(result["fromdate"])
-        result["todate"] = isoformat(result["todate"])
-        result["countries"] = result["countries"].split(', ')
-    
     return results
 
 
