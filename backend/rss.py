@@ -1,6 +1,10 @@
 import sqlite3
-from time import mktime, strptime, strftime, gmtime
+from time import mktime, strptime
 import feedparser
+
+feed_url = "https://www.gdacs.org/xml/rss.xml"
+db_file = "feed.db" 
+database = sqlite3.connect(db_file, check_same_thread=False) # python's 3.11's sqlite3 is compiled with threadsafety already
 
 def create_entries_table():
     #TODO: NEEDS reasonable schema here
@@ -41,6 +45,7 @@ def create_entries_table():
 
 def populate_entries():
     try:
+        newsfeed = feedparser.parse(feed_url)
         cursor = database.cursor()
         insert_entry_statement = '''
                                 INSERT OR IGNORE
@@ -95,7 +100,7 @@ def populate_entries():
         print(e, " from popEn")
 
 def generate_proximity(lat, long, prox):
-    '''(NOT INTENDED FOR PUBLIC USAGE) calculate raw proximity, then normalize the result'''
+    '''calculate raw proximity, then normalize the result'''
 
     # upper and lower limit to make sure range stays sane as coordinates wrap all the way around
     lat_upper_limit = lat
@@ -163,7 +168,4 @@ def bootstrapping():
     create_entries_table()
     populate_entries()
 
-feed_url = "https://www.gdacs.org/xml/rss.xml"
-db_file = "feed.db" 
-newsfeed = feedparser.parse(feed_url)
-database = sqlite3.connect(db_file, check_same_thread=False) # python's 3.11's sqlite3 is compiled with threadsafety already
+
