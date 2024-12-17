@@ -1,5 +1,6 @@
 import sqlite3
-from time import mktime, strptime
+from time import gmtime, strptime
+from calendar import timegm
 import feedparser
 
 feed_url = "https://www.gdacs.org/xml/rss.xml"
@@ -53,16 +54,17 @@ def populate_entries():
                                 VALUES(?,?,?,?,?,?,?,?);
                                 '''
 
-        upsert_disaster_statement = '''INSERT INTO disasters(disasterID, name, type, eventID, fromdate, todate) 
-                                            VALUES(?,?,?,?,?,?)
-                                            ON CONFLICT(disasterID) DO UPDATE SET
-                                                todate = excluded.todate
-                                            WHERE excluded.todate > todate
-                                            '''
+        upsert_disaster_statement = '''
+                                    INSERT INTO disasters(disasterID, name, type, eventID, fromdate, todate) 
+                                    VALUES(?,?,?,?,?,?)
+                                    ON CONFLICT(disasterID) DO UPDATE SET
+                                        todate = excluded.todate
+                                    WHERE excluded.todate > disasters.todate
+                                    '''
         for entry in newsfeed.entries:
             # entries table's value
             disasterid = entry.id
-            unixTimestamp = int(mktime(entry.published_parsed))
+            unixTimestamp = int(timegm(entry.published_parsed))
             title = entry.title
             alertLevel = entry.gdacs_alertlevel
             summary = entry.summary
@@ -74,8 +76,8 @@ def populate_entries():
             name = entry.gdacs_eventname
             typ = entry.gdacs_eventtype
             eventID = entry.gdacs_eventid 
-            fromdate = int(mktime(strptime(entry.gdacs_fromdate, '%a, %d %b %Y %H:%M:%S GMT')))
-            todate = int(mktime(strptime(entry.gdacs_todate, '%a, %d %b %Y %H:%M:%S GMT')))
+            fromdate = int(timegm(strptime(entry.gdacs_fromdate, '%a, %d %b %Y %H:%M:%S GMT')))
+            todate = int(timegm(strptime(entry.gdacs_todate, '%a, %d %b %Y %H:%M:%S GMT')))
 
             cursor.execute(insert_entry_statement, (unixTimestamp, 
                                                     title,
@@ -152,7 +154,8 @@ def query(latitude, longitude):
                 ((latitude BETWEEN ? AND ?) OR (latitude BETWEEN ? AND ?)) AND ((longitude BETWEEN ? AND ?) OR (longitude BETWEEN ? AND ?)) 
                 ELSE
                 ((latitude BETWEEN ? AND ?) OR (latitude BETWEEN ? AND ?)) AND ((longitude BETWEEN ? AND ?) OR (longitude BETWEEN ? AND ?))
-                END;
+                END
+                ORDER BY timestamp DESC;
             '''
     cursor.execute(query, sql_inputs)
 
