@@ -1,5 +1,5 @@
 import sqlite3
-from time import gmtime, strptime
+from time import strptime
 from calendar import timegm
 import feedparser
 
@@ -8,8 +8,6 @@ db_file = "feed.db"
 database = sqlite3.connect(db_file, check_same_thread=False) # python's 3.11's sqlite3 is compiled with threadsafety already
 
 def create_entries_table():
-    #TODO: NEEDS reasonable schema here
-
     # initialize table
     entries_table = '''
                 CREATE TABLE IF NOT EXISTS disasters (
@@ -103,6 +101,8 @@ def populate_entries():
 
 def generate_proximity(lat, long, prox):
     '''calculate raw proximity, then normalize the result'''
+
+    #TODO: wrap around code is not handling big numbers well
 
     # upper and lower limit to make sure range stays sane as coordinates wrap all the way around
     lat_upper_limit = lat

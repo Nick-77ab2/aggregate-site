@@ -1,4 +1,4 @@
-from flask import Flask, request;
+from flask import Flask, request, jsonify;
 from time import strftime, gmtime
 from datetime import datetime, timedelta
 import rss
@@ -18,8 +18,6 @@ def update():
 
 @app.route("/query")
 def query():
-    #TODO: call rss.query() here, interpret the result, and send back probably JSON
-    # should assume IP of request as location/country if not specified
     entries = rss.query(request.args.get('lat'), request.args.get('long'))
 
     # if requested current, return only disasters that has a todate within today
@@ -29,7 +27,8 @@ def query():
     yesterday = today - timedelta(days=1)
     current = []
     past = []
-
+    
+    #TODO: current might be up to 4 days
     for entry in entries:
         todate = datetime.fromtimestamp(entry["todate"])
         if (todate.date() == today.date() or todate.date() == yesterday.date()):
@@ -63,4 +62,7 @@ def query():
         result["countries"] = result["countries"].split(', ')
     
  
-    return results
+    response = jsonify(results)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
