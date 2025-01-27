@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import GetCities from './getCities';
 import { GetCityDetails } from './GetCityDetails';
+import getDisasters from './getDisasters';
 import './Home.css';
 import useGeoLocation from './useGeolocation';
 
@@ -9,6 +10,9 @@ export const Home = () => {
     const [cityData, setCityData] = useState(null); // state to hold cityData
     const location = useLocation();  // to get location data (state)
     const { city, lat, lon} = useGeoLocation();
+    const [currentDisasters, setCurrentDisasters] = useState(null); // state to hold currentDisasters
+    const [previousDisasters, setPreviousDisasters] = useState(null); // state to hold previousDisasters
+    const [areDisasters, setAreDisasters] = useState(null); // state to hold are
     const [cities, setCities] = useState([]);
     const [topCities, setTopCities] = useState([]);
     const [topCitiesObj, setTopCitiesObj] = useState([]);
@@ -80,7 +84,27 @@ export const Home = () => {
         };
         fetchCities();
       }, [lat, lon, cityData]); // Run effect when lat, lon, or cityData changes // Run effect only when lat or lon changes
-    
+      
+      useEffect(() => {
+        const fetchDisasters = async () => {
+          if (lat!=null && lon!=null){
+            try {
+              const { disasters } = await getDisasters(lat, lon);
+              console.log("Fetched Disasters:", disasters);
+              setCurrentDisasters(disasters[0]);
+              setPreviousDisasters(disasters[1]);
+              console.log("Fetched Current Disasters:", disasters[0]);
+              console.log("Fetched Previous Disasters:", disasters[1]);
+              setAreDisasters(true);
+            } catch (error) {
+              console.error("Error fetching disasters:", error);
+              setAreDisasters(false);
+            }
+          }
+        };
+        fetchDisasters();
+      }, [lat, lon]);
+
       useEffect(() => {
         if (location.state?.city) {
           setCityData(location.state.city);
@@ -116,7 +140,9 @@ export const Home = () => {
                   <div className="yourlocation" >
                   <header className='typeParent'><span className='type' onClick={() =>{setType("Earthquakes");} }>Earthquakes</span> | <span className='type' onClick={() =>{setType("Tropical Cyclones");}}>Tropical-Cyclones</span> | <span className='type' onClick={() =>{setType("Floods");}}>Floods</span> | <span className='type' onClick={() =>{setType("Volcanoes");}}>Volcanoes</span> | <span className='type' onClick={() =>{setType("Droughts");}}>Droughts</span> | <span className='type' onClick={() =>{setType("Forest Fires");}}>Forest-Fires</span></header>
                   <div className='data'>
-                  {time} {type} near {city} { /* placeholders */}
+                  {
+                    areDisasters===true ? time + " " + type + "near" + city: "There are no " + time + " " + type + " near " + city + ". ur safe, ur good, go outside."
+                  }
                   </div>
                   <footer className='timeParent'><span className='time' onClick={() =>{setTime("Past");}}>Past</span> | <span className='time' onClick={() =>{setTime("Current");}}>Current</span></footer>
                   </div>
