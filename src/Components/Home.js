@@ -15,6 +15,8 @@ export const Home = () => {
     const [areDisasters, setAreDisasters] = useState(null); // state to hold are
     const [cities, setCities] = useState([]);
     const [topCities, setTopCities] = useState([]);
+    const [cityALatLong, setCityALatLong] = useState([]);
+    const [cityBLatLong, setCityBLatLong] = useState([]);
     const [topCitiesObj, setTopCitiesObj] = useState([]);
     const [searchLocation, setSearchLocation] = useState('');
     const [searchCity, setSearchCity] = useState(null);
@@ -38,13 +40,14 @@ export const Home = () => {
         // Get the names of the top two cities
         const topCities = sortedCities.slice(0, 2).map((cityObj) => cityObj.city);
         setTopCitiesObj(sortedCities.slice(0, 2));
-      
+        console.log("The TopCitiesObj is: " + topCitiesObj);
         return topCities;
       };
     const navigate = useNavigate();
     const [type,setType] = useState('Earthquakes');
     const [time,setTime] = useState('Current');
     
+    //Used to get the information on the city that was searched
     const searchForCity = async (location) =>{
       try {
         console.log("Fetching city details for:", location);
@@ -68,6 +71,7 @@ export const Home = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [searchCity]);
 
+    //Gets all of the cities nearby given lat and long
     useEffect(() => {
         // Only call the API if lat, lon are available and cityData is null
         const fetchCities = async () => {
@@ -121,13 +125,14 @@ export const Home = () => {
     // Update the top cities whenever the cities list changes
     useEffect(() => {
         setTopCities(getTopCities(cities));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cities]); // Runs whenever `cities` changes
     if((cities!=null && cities.length>0 && topCitiesObj!=null && topCitiesObj.length>0) || (cityData!=null && cityData.length>0 && city!=null && city.length>0)){
       return (
           <div>
               <h1>Home</h1>
               <h2>
-                  <button onClick={() => handleNavigate(topCitiesObj.length>0 ? topCitiesObj:cityData,'/LocationA')}>{cityData ? cityData[0].city:topCities[0]}</button>
+                  <button onClick={() => handleNavigate(topCitiesObj.length>0 ? topCitiesObj:cityData, '/LocationA')}>{cityData ? cityData[0].city:topCities[0]}</button>
                   |
                   <button onClick={() => handleNavigate(topCitiesObj.length>0? topCitiesObj:cityData,'/LocationB')}>{cityData ? cityData[1].city:topCities[1]}</button>
               </h2>
@@ -141,7 +146,7 @@ export const Home = () => {
                   <header className='typeParent'><span className='type' onClick={() =>{setType("Earthquakes");} }>Earthquakes</span> | <span className='type' onClick={() =>{setType("Tropical Cyclones");}}>Tropical-Cyclones</span> | <span className='type' onClick={() =>{setType("Floods");}}>Floods</span> | <span className='type' onClick={() =>{setType("Volcanoes");}}>Volcanoes</span> | <span className='type' onClick={() =>{setType("Droughts");}}>Droughts</span> | <span className='type' onClick={() =>{setType("Forest Fires");}}>Forest-Fires</span></header>
                   <div className='data'>
                   {
-                    areDisasters===true ? time + " " + type + "near" + city: "There are no " + time + " " + type + " near " + city + ". ur safe, ur good, go outside."
+                    areDisasters===true ? time + " " + type + " near " + city + ": ": "There are no " + time + " " + type + " near " + city + ". ur safe, ur good, go outside."
                   }
                   </div>
                   <footer className='timeParent'><span className='time' onClick={() =>{setTime("Past");}}>Past</span> | <span className='time' onClick={() =>{setTime("Current");}}>Current</span></footer>

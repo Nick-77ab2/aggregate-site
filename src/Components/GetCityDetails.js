@@ -6,7 +6,6 @@ export async function GetCityDetails(city) {
     language: "en",
     region: "US",
   });
-
   try {
     const { results } = await fromAddress(city.toString());
     if (results && results.length > 0) {
