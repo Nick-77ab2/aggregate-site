@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import getDisasters from './getDisasters';
 import './LocationA.css';
@@ -20,6 +20,7 @@ export const LocationA = () => {
         //console.log('Navigating with city:', cityData);
         navigate(location, {state: { city: cityData}});
     }
+    // Used to get the information on city A nearby
     useEffect(() => {
             const fetchDisasters = async () => {
               if (lat!=null && lon!=null){

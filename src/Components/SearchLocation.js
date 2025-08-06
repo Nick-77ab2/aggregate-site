@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import getDisasters from './getDisasters';
 export const SearchLocation = () => {
@@ -31,6 +31,7 @@ export const SearchLocation = () => {
         navigate(location, {state: { city: cityData}});
     
     }
+    // Used to get the information on the city that was searched
     useEffect(() => {
             const fetchDisasters = async () => {
               if (lat!=null && lon!=null){

@@ -1,5 +1,6 @@
 import axios from 'axios';
-
+//given a latitude and longitude, this function will return a list of cities within 100km of that location and with a minimum population of 100,000
+//it uses the wft-geo-db API
 export default function GetCities(lat,lon) {
     console.log(lat,lon);
     var baseUrl = 'https:///wft-geo-db.p.rapidapi.com/v1/geo/locations/';
