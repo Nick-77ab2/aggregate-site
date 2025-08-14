@@ -1,12 +1,19 @@
 package main
 
 import (
+	"aggregate-site/backend/internal/database"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
+	// Database
+	_, err := database.Open("feed.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	mux := http.NewServeMux()
 
 	// Router
