@@ -33,6 +33,26 @@ var schema string = `
 	);
 `
 
+// define database structs
+type Entry struct {
+	Timestamp 	int64
+	Title		string
+	DisasterID 	string
+	AlertLevel 	string
+	Summary 	string
+	Countries 	string
+	Latitude 	float32
+	Longitude 	float32
+}
+
+type Disaster struct {
+	DisasterID 	string
+	Name 		string
+	Type 		string
+	EventID 	string
+	FromDate   	int64
+	ToDate 		int64
+}
 
 func Open(dbFile string) (*sql.DB, error) {
 	var needBootstrap = false

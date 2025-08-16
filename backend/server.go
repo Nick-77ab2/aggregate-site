@@ -2,6 +2,7 @@ package main
 
 import (
 	"aggregate-site/backend/internal/database"
+	"aggregate-site/backend/internal/rss"
 	"database/sql"
 	"fmt"
 	"log"
@@ -19,12 +20,16 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Error loading .env file, using default values...")
+	} else {
+		log.Println("Loaded .env file")
 	}
 
 	dbFile, exists := os.LookupEnv("DB_FILE")
 	if !exists {
 		dbFile = path.Join("feed.db")
 	}
+
+	rss.Fetch()
 
 	// Database
 	db, err := database.Open(dbFile)
@@ -39,6 +44,7 @@ func main() {
 	mux.HandleFunc("GET /", exampleHandler)
 	mux.HandleFunc("GET /query", queryHandler)
 	
+	log.Println("Server is serving at http://localhost:5000")
 	log.Fatal(http.ListenAndServe(":5000", mux))
 }
 
