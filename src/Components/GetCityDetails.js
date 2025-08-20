@@ -1,10 +1,11 @@
 import { fromAddress, setDefaults } from "react-geocode";
+const apiKey = process.env.REACT_APP_GOOGLE_API_KEY; // Ensure you have set your Google Maps API key in your environment variables
 // This function fetches the geolocation of a city using the Google Maps Geocoding API
 // It returns the latitude and longitude of the city
 // Ensure you have the react-geocode package installed and configured with your API key
 export async function GetCityDetails(city) {
   setDefaults({
-    key: "AIzaSyB_TUdD_4OY1NNfxfK7HrPOvc7rwx__Z4Q",
+    key: apiKey, // Ensure you have set your Google Maps API key in your environment variables
     language: "en",
     region: "US",
   });

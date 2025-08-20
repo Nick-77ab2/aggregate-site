@@ -27,3 +27,4 @@ aggregate-site.code-workspace
 backend/__pycache__/backend.cpython-312.pyc
 backend/__pycache__/rss.cpython-312.pyc
 backend/feed.db
+.env
