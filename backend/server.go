@@ -3,7 +3,6 @@ package main
 import (
 	"aggregate-site/backend/internal/database"
 	"aggregate-site/backend/internal/rss"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,7 +12,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var db *sql.DB
+var db database.Database
 
 func main() {
 	// loading envvar
