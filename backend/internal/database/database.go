@@ -10,29 +10,27 @@ import (
 
 // define schema
 var schema string = `
-	CREATE TABLE IF NOT EXISTS events (
-		gdacsID TEXT PRIMARY KEY,
-		name TEXT,
-		type TEXT NOT NULL,
-		eventID TEXT NOT NULL,
-		fromdate INTEGER NOT NULL,
-		todate INTEGER NOT NULL,
-		timestamp INTEGER NOT NULL
-	);
+CREATE TABLE IF NOT EXISTS disasters (
+	disasterID TEXT PRIMARY KEY,
+	name TEXT,
+	type TEXT NOT NULL,
+	eventID TEXT NOT NULL,
+	fromdate INTEGER NOT NULL,
+	todate INTEGER NOT NULL
+);
 
-	CREATE TABLE IF NOT EXISTS episodes (
-		episodeID TEXT NOT NULL,
-		gdacsID TEXT NOT NULL,
-		timestamp INTEGER NOT NULL,
-		title TEXT NOT NULL,
-		alertLevel TEXT NOT NULL,
-		description TEXT,
-		countries TEXT,
-		latitude REAL NOT NULL,
-		longitude REAL NOT NULL,
-		PRIMARY KEY (episodeID, gdacsID),
-		FOREIGN KEY (gdacsID) REFERENCES events(gdacsID)
-	);
+CREATE TABLE IF NOT EXISTS entries (
+	timestamp INTEGER NOT NULL,
+	title TEXT NOT NULL,
+	disasterID TEXT NOT NULL,
+	alertLevel TEXT NOT NULL,
+	summary TEXT,
+	countries TEXT,
+	latitude REAL NOT NULL,
+	longitude REAL NOT NULL,
+	PRIMARY KEY (timestamp, title),
+	FOREIGN KEY (disasterID) REFERENCES disasters(disasterID)
+);
 `
 
 // define database structs
@@ -40,31 +38,26 @@ type Database struct {
 	conn 			*sql.DB
 }
 
-type Coordinate struct {
-	Latitude 	float32
-	Longitude 	float32
+type Disaster struct {
+	DisasterID 	string		`json:"disasterID"`
+	Name 		string		`json:"name"`
+	Type 		string		`json:"type"`
+	EventID 	string		`json:"eventID"`
+	FromDate   	int64		`json:"fromdate"`
+	ToDate 		int64		`json:"todate"`
 }
 
-type Episode struct {
-	EpisodeID 	string
-	DisasterID 	string
-	Timestamp 	int64
-	Title		string
-	AlertLevel 	string
-	Description string
-	Countries 	string
-	Position 	Coordinate
+type Entry struct {
+	DisasterID 	string  	`json:"disasterID"`	 
+	Timestamp 	int64		`json:"timestamp"`
+	Title		string		`json:"title"`
+	AlertLevel 	string		`json:"alertLevel"`
+	Summary 	string		`json:"summary"`
+	Countries 	string		`json:"countries"`
+	Latitude 	float64		`json:"latitude"`
+	Longitude 	float64		`json:"longitude"`
 }
 
-type Event struct {
-	GDACSID 	string
-	Name 		string
-	Type 		string
-	EventID 	string
-	FromDate   	int64
-	ToDate 		int64
-	Timestamp 	int64
-}
 
 func Open(dbFile string) (Database, error) {
 	var (
@@ -127,22 +120,7 @@ func (db Database) Close() {
 	db.conn.Close()
 }
 
-func (db Database) InsertEpisode(entry Episode) error {
+func (db Database) InsertEpisode(entry Entry) error {
 	var err error
-	query := `INSERT INTO episodes(
-		episodeID, 
-		gdacsID,
-		timestamp,
-		title,
-		alertLevel,
-		description,
-		countries,
-		latitude,
-		longitude)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`
-
-
-
 	return err
 }
