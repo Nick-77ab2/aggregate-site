@@ -3,6 +3,7 @@ package rss
 import (
 	"aggregate-site/backend/internal/database"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/mmcdole/gofeed"
@@ -45,20 +46,25 @@ func Fetch() {
 	for _, item := range items { 
 		count++
 		log.Println("{ ", findExtensionValue(item, "gdacs:eventid"), ", ", findExtensionValue(item, "gdacs:episodeid"), " }")
+		lat, err := strconv.ParseFloat(findExtensionValue(item, "geo:Point:lat"), 64)
+		if err != nil {
+			log.Println("lat:", err)
+		}
+		long, err := strconv.ParseFloat(findExtensionValue(item, "geo:Point:long"), 64)
+		if err != nil {
+			log.Println("long:", err)
+		}
 
 		// format the entry, prioritize the episode attr first
-		var entry = database.Episode {
-			EpisodeID: findExtensionValue(item, "gdacs:episodeid"),
+		var entry = database.Entry {
 			DisasterID: item.GUID,
 			Title: item.Title,
-			Description: item.Description,
+			Summary: item.Description,
 			Timestamp: item.PublishedParsed.Unix(),
 			AlertLevel: findExtensionValue(item, "gdacs:episodealertlevel"),
 			Countries: findExtensionValue(item, "gdacs:country"),
-			Position: database.Coordinate{
-				Latitude: 0, // NOTE: test, need a way to extract value here
-				Longitude: 0,
-			},
+			Latitude: lat, 
+			Longitude: long,
 		}
 
 
