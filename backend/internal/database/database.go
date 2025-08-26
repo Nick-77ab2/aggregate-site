@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"os"
 	"time"
 
@@ -35,7 +36,8 @@ CREATE TABLE IF NOT EXISTS entries (
 
 // define database structs
 type Database struct {
-	conn 			*sql.DB
+	readOnly 	*sql.DB
+	readWrite 	*sql.DB
 }
 
 type Disaster struct {
@@ -59,48 +61,73 @@ type Entry struct {
 }
 
 
-func Open(dbFile string) (Database, error) {
+func Open(filename string) (Database, error) {
 	var (
-		err error
 		db Database
-		needBootstrap = false
+		err error
+		needBootstrap bool = false
 	)
 
-	if _, err = os.Stat(dbFile); err != nil {
-		needBootstrap = true
+	if filename == "" {
+		err = errors.New("Empty filename")
+		return db, err
 	} 
-
-	var (
-		dbType					string			= "sqlite3"
-		dbOptsURL				string 			= "file:" + dbFile + "?_journal=WAL"
-		maxOpenConn				int				= 1 // disable the pool to bypass lock-file problem (SQLite), concurrency will be handled by SQLite itself
-		maxIdleConn				int 			= 5
-		maxConnLifetime			time.Duration	= 5 * time.Minute
-		maxIdleConnLifetime		time.Duration	= 5 * time.Minute
-	)
 	
-	conn, err := sql.Open(dbType, dbOptsURL)
+	if _, err = os.Stat(filename); err != nil {
+		needBootstrap = true
+	}
+
+	// database general config
+	dbOptsURL 				:= "file:" + filename + "?_journal=WAL"
+	dbType					:= "sqlite3"
+	maxConnLifetime     	:= 5 * time.Minute
+	maxIdleConnLifetime 	:= 5 * time.Minute
+	
+	// read-only conn pool specific config
+	maxOpenConnRO			:= 10
+	maxIdleConnRO         	:= 5
+	
+	// read-write conn pool specific config
+	dbOptsURLRW 			:= dbOptsURL + "&_txlock=immediate&_timeout=5000"
+	maxOpenConnRW 			:= 1
+	maxIdleConnRW 			:= 1
+
+	// read-only pool
+	db.readOnly, err = sql.Open(dbType, dbOptsURL)
 	if err != nil {
 		return db, err
 	}
+	db.readOnly.SetMaxIdleConns(maxIdleConnRO)
+	db.readOnly.SetMaxOpenConns(maxOpenConnRO)
+	db.readOnly.SetConnMaxIdleTime(maxIdleConnLifetime)
+	db.readOnly.SetConnMaxLifetime(maxConnLifetime)
 
-	conn.SetMaxIdleConns(maxIdleConn)
-	conn.SetMaxOpenConns(maxOpenConn)
-	conn.SetConnMaxIdleTime(maxIdleConnLifetime)
-	conn.SetConnMaxLifetime(maxConnLifetime)
-	db.conn = conn
 
-	// if not bootstrapped, then bootstrap it
-	if needBootstrap {
-		err = db.bootstrap() 	
+	// read-write pool
+	db.readWrite, err = sql.Open(dbType, dbOptsURLRW)
+	if err != nil {
+		return db, err
+	}
+	db.readWrite.SetMaxIdleConns(maxIdleConnRW)
+	db.readWrite.SetMaxOpenConns(maxOpenConnRW)
+	db.readWrite.SetConnMaxIdleTime(maxIdleConnLifetime)
+	db.readWrite.SetConnMaxLifetime(maxConnLifetime)
+
+	if (needBootstrap) {
+		db.bootstrap()
 	}
 
 	return db, err
 }
 
+func (db Database) Close() {
+	db.readOnly.Close()
+	db.readWrite.Close()
+}
+
 func (db Database) bootstrap() error {
 	// Must only run after checking if it's an empty database
-	conn := db.conn
+	conn := db.readWrite
 	tx, err := conn.Begin()
 	if err != nil {
 		return err
@@ -114,10 +141,6 @@ func (db Database) bootstrap() error {
 
 	tx.Commit()
 	return err
-}
-
-func (db Database) Close() {
-	db.conn.Close()
 }
 
 func (db Database) InsertEpisode(entry Entry) error {
