@@ -7,9 +7,9 @@ export const SearchLocation = () => {
     const location = useLocation();
     const cityDatas = location.state?.city;
     const searchLocation = location.state?.search;
-    const [currentDisasters, setCurrentDisasters] = useState(null); // state to hold currentDisasters
-    const [previousDisasters, setPreviousDisasters] = useState(null); // state to hold previousDisasters
-    const [areDisasters, setAreDisasters] = useState(null); // state to hold are
+    const [currentDisasters, setCurrentDisasters] = useState(); // state to hold currentDisasters
+    const [previousDisasters, setPreviousDisasters] = useState(); // state to hold previousDisasters
+    const [areDisasters, setAreDisasters] = useState(null); // fix this, we need to know if there are disasters of each type, not just if there are any disasters.
     const [city, setCity] = useState();
     const [lat, setLat] = useState();
     const [lon, setLon] = useState();
@@ -33,24 +33,24 @@ export const SearchLocation = () => {
     }
     // Used to get the information on the city that was searched
     useEffect(() => {
-            const fetchDisasters = async () => {
-              if (lat!=null && lon!=null){
-                try {
-                  const { disasters } = await getDisasters(lat, lon);
-                  console.log("Fetched Disasters:", disasters);
-                  setCurrentDisasters(disasters[0]);
-                  setPreviousDisasters(disasters[1]);
-                  console.log("Fetched Current Disasters:", disasters[0]);
-                  console.log("Fetched Previous Disasters:", disasters[1]);
-                  setAreDisasters(true);
-                } catch (error) {
-                  console.error("Error fetching disasters:", error);
-                  setAreDisasters(false);
-                }
-              }
-            };
-            fetchDisasters();
-          }, [lat, lon]);
+		const fetchDisasters = async () => {
+			if (lat!=null && lon!=null){
+			try {
+				const { currentDisasters, previousDisasters } = await getDisasters(lat, lon);
+				setCurrentDisasters(currentDisasters);
+				setPreviousDisasters(previousDisasters);
+				console.log("Fetched Current Disasters:", currentDisasters);
+				console.log("Fetched Previous Disasters:", previousDisasters);
+				//change this to multiple checks for each disaster type based on length of array for type i.e. currentDisasters.earthquakes.length>0 || currentDisasters.floods.length>0 ...
+				setAreDisasters(true);
+			} catch (error) {
+				console.error("Error fetching disasters:", error);
+				setAreDisasters(false);
+			}
+			}
+		};
+		fetchDisasters();
+    }, [lat, lon]);
     if(city!=null){
     return (
         <div>

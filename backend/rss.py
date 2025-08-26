@@ -1,6 +1,7 @@
 import sqlite3
-from time import strptime
 from calendar import timegm
+from time import strptime
+
 import feedparser
 
 feed_url = "https://www.gdacs.org/xml/rss.xml"
@@ -145,7 +146,7 @@ def query(latitude, longitude):
     long = float(longitude)
     
     # TC range is +-3, otherwise +-1
-    sql_inputs = generate_proximity(lat, long, 3) + generate_proximity(lat, long, 1) 
+    sql_inputs = generate_proximity(lat, long, 3) + generate_proximity(lat, long, 2) 
 
     query = '''
                 SELECT * FROM (entries LEFT JOIN disasters ON entries.disasterID = disasters.disasterID) 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import GetCities from './getCities';
 import { GetCityDetails } from './GetCityDetails';
@@ -93,12 +93,12 @@ export const Home = () => {
         const fetchDisasters = async () => {
           if (lat!=null && lon!=null){
             try {
-              const { disasters } = await getDisasters(lat, lon);
-              console.log("Fetched Disasters:", disasters);
-              setCurrentDisasters(disasters[0]);
-              setPreviousDisasters(disasters[1]);
-              console.log("Fetched Current Disasters:", disasters[0]);
-              console.log("Fetched Previous Disasters:", disasters[1]);
+            	const { currentDisasters, previousDisasters } = await getDisasters(lat, lon);
+				setCurrentDisasters(currentDisasters);
+				setPreviousDisasters(previousDisasters);
+				console.log("Fetched Current Disasters:", currentDisasters);
+				console.log("Fetched Previous Disasters:", previousDisasters);
+              //change this to multiple checks for each disaster type based on length of array for type i.e. currentDisasters.earthquakes.length>0 || currentDisasters.floods.length>0 ...
               setAreDisasters(true);
             } catch (error) {
               console.error("Error fetching disasters:", error);
