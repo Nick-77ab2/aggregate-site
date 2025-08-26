@@ -64,5 +64,6 @@ def query():
  
     response = jsonify(results)
     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+    response.headers.add('Vary', 'Origin')
 
     return response
