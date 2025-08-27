@@ -3,30 +3,86 @@
     padding: 10px;
     margin-top: 10px;
 }
+.disaster-table {
+  width: 90%;       /* or whatever width you want */
+  margin: 0 auto;   /* centers horizontally */
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.disaster-table th,
+.disaster-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.disaster-table th {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.disaster-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.expanded-row td {
+    background: #fafafa;
+    padding: 10px;
+}
+
+.disaster-details p {
+    margin: 4px 0;
+}
+
+.chevron {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.chevron.open {
+    transform: rotate(90deg);
+}
+.typeParent {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;   /* wrap to next line if needed */
+  margin-bottom: 8px; /* small spacing below */
+  justify-content: space-between;
+  word-spacing: 20px;
+}
+
+.type {
+    font-weight: 400;
+    font-size: 16px;
+  cursor: pointer;
+  display: inline-block;
+  padding: 1px 3px;
+  font-weight: normal;
+  border-bottom: 2px solid transparent; /* invisible line for smooth hover */
+  transition: border-color 0.2s ease;
+  margin-right: 0;
+  word-spacing: normal;   /* ensures normal spacing between words */
+  letter-spacing: normal; /* ensures normal letter spacing */
+}
+
+.type:hover {
+  font-weight: bold;
+  border-bottom: 2px solid #333; /* visible underline on hover */
+}
+
 .timeParent{
     justify-content: space-between;
     word-spacing: 20px;
     margin-top: 120px
 }
-
-.typeParent{
-    justify-content: space-between;
-    word-spacing: 20px;
-    margin-bottom: 120px;
-}
 .time{
-    padding: 10px;
+    padding: 3px 20px;
     font-weight: 500;
     font-size: 16px;
     color: gray;
     cursor: pointer;
-    text-decoration: underline;
 }
-
-.type{
-    padding: 10px;
-    font-weight: 400;
-    font-size: 16px;
-    cursor: pointer;
-    text-decoration: underline;
+.time:hover {
+    font-weight: bold;
+    border-bottom: 2px solid #333; /* visible underline on hover */
 }

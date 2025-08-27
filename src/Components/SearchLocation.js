@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import getDisasters from './getDisasters';
+import './searchLocation.css';
 export const SearchLocation = () => {
     const firstRender = useRef(true);
     const navigate = useNavigate();
@@ -9,14 +10,20 @@ export const SearchLocation = () => {
     const searchLocation = location.state?.search;
     const [currentDisasters, setCurrentDisasters] = useState(); // state to hold currentDisasters
     const [previousDisasters, setPreviousDisasters] = useState(); // state to hold previousDisasters
-    const [areDisasters, setAreDisasters] = useState(null); // fix this, we need to know if there are disasters of each type, not just if there are any disasters.
+    const [expanded, setExpanded] = useState(null);
     const [city, setCity] = useState();
     const [lat, setLat] = useState();
     const [lon, setLon] = useState();
 
     const [type,setType] = useState('Earthquakes');
     const [time,setTime] = useState('Current');
-
+    const alertColors = {
+        Green: "#4CAF50",
+        Yellow: "#FFEB3B",
+        Orange: "#FF9800",
+        Red: "#F44336",
+        Blue: "#2196F3", // optional, in case you have others
+    };
     useEffect(() => {
         if(firstRender.current && city==null){
             console.log("We're setting things up");
@@ -36,48 +43,142 @@ export const SearchLocation = () => {
 		const fetchDisasters = async () => {
 			if (lat!=null && lon!=null){
 			try {
-				const { currentDisasters, previousDisasters } = await getDisasters(lat, lon);
-				setCurrentDisasters(currentDisasters);
-				setPreviousDisasters(previousDisasters);
-				console.log("Fetched Current Disasters:", currentDisasters);
-				console.log("Fetched Previous Disasters:", previousDisasters);
-				//change this to multiple checks for each disaster type based on length of array for type i.e. currentDisasters.earthquakes.length>0 || currentDisasters.floods.length>0 ...
-				setAreDisasters(true);
+				const { parsedCurrent, parsedPrevious } = await getDisasters(lat, lon);
+				setCurrentDisasters(parsedCurrent);
+				setPreviousDisasters(parsedPrevious);
+				console.log("Fetched Current Disasters:", parsedCurrent);
+				console.log("Fetched Previous Disasters:", parsedPrevious);
 			} catch (error) {
 				console.error("Error fetching disasters:", error);
-				setAreDisasters(false);
 			}
 			}
 		};
 		fetchDisasters();
     }, [lat, lon]);
-    if(city!=null){
-    return (
-        <div>
-            <h1> Information on {city}:</h1>
-            <div className='coords'> lat: {lat} lon: {lon}</div>
-            <h2>
-                <button onClick={() => handleNavigate(cityDatas,'/')}>Home</button>
-            </h2>
-            <div>
-                  <h3>{city}</h3>
-                  <div className="yourlocation" >
-                  <header className='typeParent'><span className='type' onClick={() =>{setType("Earthquakes");} }>Earthquakes</span> | <span className='type' onClick={() =>{setType("Tropical Cyclones");}}>Tropical-Cyclones</span> | <span className='type' onClick={() =>{setType("Floods");}}>Floods</span> | <span className='type' onClick={() =>{setType("Volcanoes");}}>Volcanoes</span> | <span className='type' onClick={() =>{setType("Droughts");}}>Droughts</span> | <span className='type' onClick={() =>{setType("Forest Fires");}}>Forest-Fires</span></header>
-                  <div className='data'>
-                  {
-                    areDisasters===true ? time + " " + type + " near " + city + ": ": "There are no " + time + " " + type + " near " + city + ". ur safe, ur good, go outside."
-                  }
-                  </div>
-                  <footer className='timeParent'><span className='time' onClick={() =>{setTime("Past");}}>Past</span> | <span className='time' onClick={() =>{setTime("Current");}}>Current</span> | <span className='time' onClick={() =>{setTime("Future");}}>Future</span></footer>
-                  </div>
-              </div>
-        </div>
+    if (city != null) {
+  return (
+    <div>
+      <h1>Information on {city}:</h1>
+      <div className="coords">lat: {lat} lon: {lon}</div>
+      <h2>
+        <button onClick={() => handleNavigate(cityDatas, "/")}>Home</button>
+      </h2>
+      <div>
+        <h3>{city}</h3>
+        <div className="yourlocation">
+          {/* Disaster Type Selection */}
+          <header className="typeParent">
+            {["Earthquakes", "Tropical Cyclones", "Floods", "Volcanoes", "Droughts", "Forest Fires"].map(
+              (label) => (
+                <span
+                  key={label}
+                  className="type"
+                  onClick={() => setType(label)}
+                  style={{ cursor: "pointer", fontWeight: type === label ? "bold" : "normal" }}
+                >
+                  {label}
+                </span>
+              )
+            )}
+          </header>
 
-    )
-    }
-    else{
-        return <h1>Loading...</h1>
-    }
+          {/* Disaster Data Table */}
+          <div className="data">
+            {(() => {
+              const typeKeyMap = {
+                Earthquakes: "earthquakes",
+                TropicalCyclones: "tropicalcyclones",
+                Floods: "floods",
+                Volcanoes: "volcanoes",
+                Droughts: "droughts",
+                ForestFires: "wildfires",
+              };
+
+              const disastersByTime = time === "Past" ? previousDisasters : currentDisasters;
+              const selectedKey = typeKeyMap[type];
+              const selectedDisasters = disastersByTime?.[selectedKey] || [];
+
+              if (selectedDisasters.length > 0) {
+                return (
+                  <>
+                    <p>
+                      {time} {type} near {city}:
+                    </p>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                    <table className="disaster-table">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>Title</th>
+                          <th>Alert Level</th>
+                          <th>Country</th>
+                          <th>From</th>
+                          <th>To</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedDisasters.map((d, idx) => {
+                          const isOpen = expanded === idx;
+                          return (
+                            <React.Fragment key={idx}>
+                              <tr onClick={() => setExpanded(isOpen ? null : idx)} style={{ cursor: "pointer" }}>
+                                <td style={{ textAlign: "center" }}>
+                                  <span className={`chevron ${isOpen ? "open" : ""}`}>▶</span>
+                                </td>
+                                <td>{d.title || d.name || "Unnamed event"}</td>
+                                <td style={{ color: alertColors[d.alertLevel] || "black", fontWeight: "bold" }}>{d.alertLevel}</td>
+                                <td>{d.countries?.join(", ")}</td>
+                                <td>{new Date(d.fromdate).toLocaleDateString()}</td>
+                                <td>{new Date(d.todate).toLocaleDateString()}</td>
+                              </tr>
+                              {isOpen && (
+                                <tr className="expanded-row">
+                                  <td colSpan="6">
+                                    <div className="disaster-details">
+                                      <p><strong>ID:</strong> {d.disasterID}</p>
+                                      <p><strong>Event ID:</strong> {d.eventID}</p>
+                                      <p><strong>Summary:</strong> {d.summary}</p>
+                                      <p><strong>Coordinates:</strong> {d.latitude}, {d.longitude}</p>
+                                      <p><strong>Reported:</strong> {new Date(d.timestamp).toLocaleString()}</p>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    </div>
+                  </>
+                );
+              } else {
+                return <p>There are no {time} {type} near {city}. ur safe, ur good, go outside.</p>;
+              }
+            })()}
+          </div>
+
+          {/* Time Selection */}
+          <footer className="timeParent">
+            {["Past", "Current"].map((t) => (
+              <span
+                key={t}
+                className="time"
+                onClick={() => setTime(t)}
+                style={{ cursor: "pointer", fontWeight: time === t ? "bold" : "normal" }}
+              >
+                {t}
+              </span>
+            ))}
+          </footer>
+        </div>
+      </div>
+    </div>
+  );
+} else {
+  return <h1>Loading...</h1>;
+}
+
 
 
 }

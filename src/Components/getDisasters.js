@@ -9,7 +9,17 @@ export default async function getDisasters(lat, lon) {
     var finalPast = baseURL + "lat=" + lat.toString() + "&long=" + lon.toString() + "&current=0";
     const currentRes = await axios.get(finalCurrent);
     var currentDisasters = null;
+    let parsedCurrent = {floods: [], earthquakes: [], tropicalcyclones: [], wildfires: [], volcanoes: [], droughts: []};
     var previousDisasters = null;
+    let parsedPrevious = {floods: [], earthquakes: [], tropicalcyclones: [], wildfires: [], volcanoes: [], droughts: []};
+    const typeMap = {
+        FL: "floods",
+        EQ: "earthquakes",
+        TC: "tropicalcyclones",
+        WF: "wildfires",
+        VO: "volcanoes",
+        DR: "droughts"
+    }
     console.log(currentRes);
     if (currentRes.status === 200)
         currentDisasters=currentRes.data;
@@ -21,8 +31,22 @@ export default async function getDisasters(lat, lon) {
     console.log(previousDisasters);
     //parse the disasters here instead. break them into types. so currentDisasters.earthquakes, currentDisasters.floods, etc.
     //same for previousDisasters
+    for (const disaster of currentDisasters) {
+        const key = typeMap[disaster.type];
+            if (key) {
+                parsedCurrent[key].push(disaster);
+        }
+    }
+   for (const disaster1 of previousDisasters) {
+        const key = typeMap[disaster1.type];
+            if (key) {
+                parsedPrevious[key].push(disaster1);
+        }
+    }
+    console.log("Parsed current disasters: ",parsedCurrent);
+    console.log("Parsed previous disasters: ",parsedPrevious);
     return{
-        currentDisasters,
-        previousDisasters
+        parsedCurrent,
+        parsedPrevious
     }
     }
