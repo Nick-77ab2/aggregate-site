@@ -148,7 +148,7 @@ export const Home = () => {
 									<div className="yourlocation" >
 									{/* Disaster Type Selection */}
 											  <header className="typeParent">
-												{["Earthquakes", "Tropical Cyclones", "Floods", "Volcanoes", "Droughts", "Forest Fires"].map(
+												{["Earthquakes", "Tropical Cyclones", "Floods", "Volcanic eruptions/unrest", "Droughts", "Forest Fires"].map(
 												  (label) => (
 													<span
 													  key={label}

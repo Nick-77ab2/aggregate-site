@@ -59,7 +59,7 @@ export const SearchLocation = () => {
   return (
     <div>
       <h1>Information on {city}:</h1>
-      <div className="coords">lat: {lat} lon: {lon}</div>
+      <div className="coords">lat: {lat.toFixed(2)} lon: {lon.toFixed(2)}</div>
       <h2>
         <button onClick={() => handleNavigate(cityDatas, "/")}>Home</button>
       </h2>
@@ -68,7 +68,7 @@ export const SearchLocation = () => {
         <div className="yourlocation">
           {/* Disaster Type Selection */}
           <header className="typeParent">
-            {["Earthquakes", "Tropical Cyclones", "Floods", "Volcanoes", "Droughts", "Forest Fires"].map(
+            {["Earthquakes", "Tropical Cyclones", "Floods", "Volcanic eruptions/unrest", "Droughts", "Forest Fires"].map(
               (label) => (
                 <span
                   key={label}
