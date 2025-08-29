@@ -28,14 +28,17 @@ func main() {
 		dbFile = path.Join("feed.db")
 	}
 
-	rss.Fetch()
-
 	// Database
 	db, err := database.Open(dbFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	err = rss.Fetch(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	mux := http.NewServeMux()
 
