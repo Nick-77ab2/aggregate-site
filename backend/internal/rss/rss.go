@@ -74,6 +74,6 @@ func Fetch(db database.Database) error {
 
 		log.Println(entry)
 	}
-	err = db.InsertEpisode(entries)
+	err = db.InsertEntries(entries)
 	return err
 }

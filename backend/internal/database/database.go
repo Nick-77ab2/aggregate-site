@@ -143,7 +143,7 @@ func (db Database) bootstrap() error {
 	return err
 }
 
-func (db Database) InsertEpisode(entries []Entry) error {
+func (db Database) InsertEntries(entries []Entry) error {
 	var err error
 	
 	query := `
@@ -179,3 +179,4 @@ func (db Database) InsertEpisode(entries []Entry) error {
 	tx.Commit()
 	return err
 }
+
