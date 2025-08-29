@@ -180,3 +180,38 @@ func (db Database) InsertEntries(entries []Entry) error {
 	return err
 }
 
+func (db Database) InsertEvent(disasters []Disaster) error {
+	var err error
+	
+	query := `
+		INSERT INTO disasters(disasterID, name, type, eventID, fromdate, todate) 
+		VALUES(?,?,?,?,?,?)
+		ON CONFLICT(disasterID) DO UPDATE SET
+			todate = excluded.todate
+		WHERE excluded.todate > disasters.todate
+	`
+
+	conn := db.readWrite
+	tx, err :=  conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	
+	for _, disaster := range disasters {
+		_, err = tx.Exec(query,
+			disaster.DisasterID,
+			disaster.Name,
+			disaster.Type,
+			disaster.EventID,
+			disaster.FromDate,
+			disaster.ToDate,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	tx.Commit()
+	return err
+}
