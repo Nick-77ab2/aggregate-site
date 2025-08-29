@@ -35,13 +35,16 @@ func findExtensionValue(item *gofeed.Item, key string) string {
 	return findKeyValue(ext, keys)
 }
 
-func Fetch() {
+func Fetch(db database.Database) error {
+	var err error 
+
 	fp := gofeed.NewParser()
 	feed, _ := fp.ParseURL(feedURL)
 
 	items := feed.Items
 
 	count := 0
+	entries := []database.Entry{}
 	// TODO:rewrite this for concurrency
 	for _, item := range items { 
 		count++
@@ -67,7 +70,10 @@ func Fetch() {
 			Longitude: long,
 		}
 
+		entries = append(entries, entry)
 
 		log.Println(entry)
 	}
+	err = db.InsertEpisode(entries)
+	return err
 }

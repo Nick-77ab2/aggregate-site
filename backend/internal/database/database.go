@@ -164,6 +164,7 @@ func (db Database) InsertEpisode(entries []Entry) error {
 		_, err = tx.Exec(query,
 			entry.Timestamp,
 			entry.Title,
+			entry.DisasterID,
 			entry.AlertLevel,
 			entry.Summary,
 			entry.Countries,
