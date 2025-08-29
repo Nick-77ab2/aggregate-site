@@ -143,7 +143,38 @@ func (db Database) bootstrap() error {
 	return err
 }
 
-func (db Database) InsertEpisode(entry Entry) error {
+func (db Database) InsertEpisode(entries []Entry) error {
 	var err error
+	
+	query := `
+		INSERT OR IGNORE
+		INTO entries(timestamp, title, disasterID, alertLevel, summary, countries, latitude, longitude)
+		VALUES(?,?,?,?,?,?,?,?);
+	`
+
+	conn := db.readWrite
+	tx, err :=  conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	
+	for i:=0; i<len(entries); i++ {
+		entry := entries[i]
+		_, err = tx.Exec(query,
+			entry.Timestamp,
+			entry.Title,
+			entry.AlertLevel,
+			entry.Summary,
+			entry.Countries,
+			entry.Latitude,
+			entry.Longitude,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	tx.Commit()
 	return err
 }
