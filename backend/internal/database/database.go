@@ -180,7 +180,7 @@ func (db Database) InsertEntries(entries []Entry) error {
 	return err
 }
 
-func (db Database) InsertEvent(disasters []Disaster) error {
+func (db Database) InsertDisaster(disasters []Disaster) error {
 	var err error
 	
 	query := `
