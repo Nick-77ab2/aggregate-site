@@ -159,8 +159,7 @@ func (db Database) InsertEntries(entries []Entry) error {
 	}
 	defer tx.Rollback()
 	
-	for i:=0; i<len(entries); i++ {
-		entry := entries[i]
+	for _, entry := range entries {
 		_, err = tx.Exec(query,
 			entry.Timestamp,
 			entry.Title,
