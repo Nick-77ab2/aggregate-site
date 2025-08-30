@@ -1,0 +1,6 @@
+.air.toml
+.env
+
+# dir 
+tmp/
+/database/
