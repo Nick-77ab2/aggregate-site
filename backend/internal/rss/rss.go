@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mmcdole/gofeed"
 	ext "github.com/mmcdole/gofeed/extensions"
@@ -43,12 +44,10 @@ func Fetch(db database.Database) error {
 
 	items := feed.Items
 
-	count := 0
 	entries := []database.Entry{}
+	disasters := []database.Disaster{}
 	// TODO:rewrite this for concurrency
 	for _, item := range items { 
-		count++
-		log.Println("{ ", findExtensionValue(item, "gdacs:eventid"), ", ", findExtensionValue(item, "gdacs:episodeid"), " }")
 		lat, err := strconv.ParseFloat(findExtensionValue(item, "geo:Point:lat"), 64)
 		if err != nil {
 			log.Println("lat:", err)
@@ -58,7 +57,7 @@ func Fetch(db database.Database) error {
 			log.Println("long:", err)
 		}
 
-		// format the entry, prioritize the episode attr first
+		// format the entry
 		var entry = database.Entry {
 			DisasterID: item.GUID,
 			Title: item.Title,
@@ -69,11 +68,40 @@ func Fetch(db database.Database) error {
 			Latitude: lat, 
 			Longitude: long,
 		}
-
 		entries = append(entries, entry)
-
 		log.Println(entry)
+
+		fromDate, err := time.Parse(
+			time.RFC1123,
+			findExtensionValue(item, "gdacs:fromdate"),
+		)
+		if err != nil {
+			return err
+		}
+
+		toDate, err := time.Parse(
+			time.RFC1123,
+			findExtensionValue(item, "gdacs:todate"),
+		)
+		if err != nil {
+			return err
+		}
+		
+		// format the disaster
+		var disaster = database.Disaster {
+			DisasterID: item.GUID,
+			Name: findExtensionValue(item, "gdacs:eventname"),
+			Type: findExtensionValue(item, "gdacs:eventtype"),
+			EventID: findExtensionValue(item, "gdacs:eventid"),
+			FromDate: fromDate.Unix(),
+			ToDate: toDate.Unix(),
+		}
+		disasters = append(disasters, disaster)
 	}
 	err = db.InsertEntries(entries)
+	if err != nil {
+		return err
+	}
+	err = db.InsertDisaster(disasters)
 	return err
 }
