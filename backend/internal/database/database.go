@@ -249,18 +249,12 @@ func (db Database) Query(lat float64, long float64) ([]QueryResult, error) {
 		err error
 	)
 
-	// TODO: collision constraint?
 	latRange := geoRangeGenerator(lat, float64(1), LAT_LIMIT)
 	longRange := geoRangeGenerator(long, float64(1), LONG_LIMIT)
 	
 	latTCRange := geoRangeGenerator(lat, float64(3), LAT_LIMIT)
 	longTCRange := geoRangeGenerator(long, float64(3), LONG_LIMIT)
 
-	log.Println(latRange, longRange)
-	log.Println(latTCRange, longTCRange)
-
-
-	// TODO: query the db
 	query := `
 	SELECT 
 		entries.timestamp,
@@ -312,7 +306,6 @@ func (db Database) Query(lat float64, long float64) ([]QueryResult, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		log.Println(rows.Columns())
 		var entry QueryResult
 		err := rows.Scan(
 			&entry.Timestamp,
@@ -330,7 +323,7 @@ func (db Database) Query(lat float64, long float64) ([]QueryResult, error) {
 			&entry.ToDate,
 		)
 		if err != nil {
-			log.Println(err)
+			return results, err
 		}
 
 		results = append(results, entry)

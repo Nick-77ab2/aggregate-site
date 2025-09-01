@@ -112,7 +112,7 @@ func QueryHandler(db database.Database) http.HandlerFunc {
 
 		rawEntries, err := db.Query(lat, long)
 		if err != nil {
-			log.Println(err)
+			log.Println("Query: ", err)
 			w.WriteHeader(400)
 			return
 		}
