@@ -1,0 +1,11 @@
+basePath: /
+host: localhost:5000
+info:
+  contact: {}
+  description: Backend for the aggregate-site project
+  license:
+    name: MIT
+  title: aggregate-site-backend
+  version: "1.0"
+paths: {}
+swagger: "2.0"

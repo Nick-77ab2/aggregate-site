@@ -3,6 +3,7 @@ package main
 import (
 	"aggregate-site/backend/internal/database"
 	"aggregate-site/backend/internal/rss"
+	_ "aggregate-site/backend/docs"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,9 +11,17 @@ import (
 	"path"
 
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 var db database.Database
+
+// @title aggregate-site-backend
+// @version 1.0
+// @description Backend for the aggregate-site project
+// @host localhost:5000
+// @BasePath /
+// @license.name MIT
 
 func main() {
 	// loading envvar
@@ -45,6 +54,9 @@ func main() {
 	// Router
 	mux.HandleFunc("GET /", exampleHandler)
 	mux.HandleFunc("GET /query", queryHandler)
+	mux.HandleFunc("GET /docs/", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:5000/docs/doc.json"),
+	))
 	
 	log.Println("Server is serving at http://localhost:5000")
 	log.Fatal(http.ListenAndServe(":5000", mux))
