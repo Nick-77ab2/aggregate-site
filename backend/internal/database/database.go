@@ -249,8 +249,8 @@ func (db Database) Query(lat float64, long float64) ([]QueryResult, error) {
 		err     error
 	)
 
-	latRange := geoRangeGenerator(lat, float64(1), LAT_LIMIT)
-	longRange := geoRangeGenerator(long, float64(1), LONG_LIMIT)
+	latRange := geoRangeGenerator(lat, float64(2), LAT_LIMIT)
+	longRange := geoRangeGenerator(long, float64(2), LONG_LIMIT)
 
 	latTCRange := geoRangeGenerator(lat, float64(3), LAT_LIMIT)
 	longTCRange := geoRangeGenerator(long, float64(3), LONG_LIMIT)
