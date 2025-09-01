@@ -35,11 +35,12 @@ CREATE TABLE IF NOT EXISTS entries (
 `
 
 const (
-	LAT_LIMIT float64 = 90
+	LAT_LIMIT  float64 = 90
 	LONG_LIMIT float64 = 180
 )
 
 type geoRangeIndex int
+
 const (
 	Start geoRangeIndex = iota
 	StartLimit
@@ -81,7 +82,7 @@ type QueryResult struct {
 	Summary    string  `json:"summary"`
 	Countries  string  `json:"countries"`
 	Latitude   float64 `json:"latitude"`
-	Longitude  float64 `json:"longitude"`	
+	Longitude  float64 `json:"longitude"`
 	Name       string  `json:"name"`
 	Type       string  `json:"type"`
 	EventID    string  `json:"eventID"`
@@ -245,12 +246,12 @@ func (db Database) InsertDisaster(disasters []Disaster) error {
 func (db Database) Query(lat float64, long float64) ([]QueryResult, error) {
 	var (
 		results = []QueryResult{}
-		err error
+		err     error
 	)
 
 	latRange := geoRangeGenerator(lat, float64(1), LAT_LIMIT)
 	longRange := geoRangeGenerator(long, float64(1), LONG_LIMIT)
-	
+
 	latTCRange := geoRangeGenerator(lat, float64(3), LAT_LIMIT)
 	longTCRange := geoRangeGenerator(long, float64(3), LONG_LIMIT)
 
@@ -294,8 +295,8 @@ func (db Database) Query(lat float64, long float64) ([]QueryResult, error) {
 	rows, err := tx.Query(
 		query,
 		latTCRange[Start], latTCRange[StartLimit], latTCRange[EndLimit], latTCRange[End],
-		longTCRange[Start], 
-			longTCRange[StartLimit], longTCRange[EndLimit], longTCRange[End],
+		longTCRange[Start],
+		longTCRange[StartLimit], longTCRange[EndLimit], longTCRange[End],
 		latRange[Start], latRange[StartLimit], latRange[EndLimit], latRange[End],
 		longRange[Start], longRange[StartLimit], longRange[EndLimit], longRange[End],
 	)
@@ -327,7 +328,7 @@ func (db Database) Query(lat float64, long float64) ([]QueryResult, error) {
 
 		results = append(results, entry)
 	}
-	
+
 	err = tx.Commit()
 	return results, err
 }
@@ -336,7 +337,7 @@ func geoRangeGenerator(point float64, delta float64, limit float64) [4]float64 {
 	var result = [4]float64{}
 	if limit < 0 {
 		// normalize the limit by taking its absolute value
-		limit = -limit 
+		limit = -limit
 	}
 	oppLimit := -limit
 

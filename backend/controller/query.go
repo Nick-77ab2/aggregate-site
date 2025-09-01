@@ -18,20 +18,20 @@ const (
 	ALL
 )
 
-type QueryResponse struct {	
-	DisasterID string  `json:"disasterID"`
-	Timestamp  string  `json:"timestamp"`
-	Title      string  `json:"title"`
-	AlertLevel string  `json:"alertLevel"`
-	Summary    string  `json:"summary"`
-	Countries  []string  `json:"countries"`
-	Latitude   float64 `json:"latitude"`
-	Longitude  float64 `json:"longitude"`	
-	Name       string  `json:"name"`
-	Type       string  `json:"type"`
-	EventID    string  `json:"eventID"`
-	FromDate   string  `json:"fromdate"`
-	ToDate     string  `json:"todate"`
+type QueryResponse struct {
+	DisasterID string   `json:"disasterID"`
+	Timestamp  string   `json:"timestamp"`
+	Title      string   `json:"title"`
+	AlertLevel string   `json:"alertLevel"`
+	Summary    string   `json:"summary"`
+	Countries  []string `json:"countries"`
+	Latitude   float64  `json:"latitude"`
+	Longitude  float64  `json:"longitude"`
+	Name       string   `json:"name"`
+	Type       string   `json:"type"`
+	EventID    string   `json:"eventID"`
+	FromDate   string   `json:"fromdate"`
+	ToDate     string   `json:"todate"`
 }
 
 func parseQueryResult(res database.QueryResult) QueryResponse {
@@ -53,7 +53,7 @@ func parseQueryResult(res database.QueryResult) QueryResponse {
 	// parse out the timestamp
 	layout := "2006-01-02T15:04:05Z"
 
-	timestamp := time.Unix(res.Timestamp,0 ).UTC()
+	timestamp := time.Unix(res.Timestamp, 0).UTC()
 	qr.Timestamp = timestamp.Format(layout)
 
 	fromDate := time.Unix(res.FromDate, 0).UTC()
@@ -73,9 +73,9 @@ func parseQueryResult(res database.QueryResult) QueryResponse {
 //	@Summary		Query the backend for relevant events surrounding a coordinate
 //	@Description	Consume lat, long, and current params, and return a list of events that are separated by categories
 //	@Tags			query
-//	@Param			lat query float64 true "latitude of the place"
-//	@Param			long query float64 true "longitude of the place"
-//	@Param			current query int false "1 for present, 0 for past, any for all"
+//	@Param			lat		query	float64	true	"latitude of the place"
+//	@Param			long	query	float64	true	"longitude of the place"
+//	@Param			current	query	int		false	"1 for present, 0 for past, any for all"
 //	@Produce		json
 //	@Success		200
 //	@Failure		400
@@ -120,9 +120,9 @@ func QueryHandler(db database.Database) http.HandlerFunc {
 		// sort into past and current
 		var (
 			current = []database.QueryResult{}
-			past = []database.QueryResult{}
+			past    = []database.QueryResult{}
 		)
-		
+
 		today := time.Now()
 		// set the time to 0:00
 		today = time.Date(
@@ -145,7 +145,6 @@ func QueryHandler(db database.Database) http.HandlerFunc {
 		default:
 			usableSet = rawEntries
 		}
-			
 
 		res := []QueryResponse{}
 		for _, rawEntry := range usableSet {
