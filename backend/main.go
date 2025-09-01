@@ -41,13 +41,13 @@ func main() {
 	// Database
 	db, err := database.Open(dbFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Database:", err)
 	}
 	defer db.Close()
 
 	err = rss.Fetch(db)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fetch:", err)
 	}
 
 	mux := http.NewServeMux()
@@ -63,6 +63,16 @@ func main() {
 	log.Fatal(http.ListenAndServe(":5000", mux))
 }
 
+// exampleHandler godoc
+//
+//	@Summary		Example API
+//	@Description	Testing API doc
+//	@Tags			example
+//	@Accept			json
+//	@Produce		plain
+//	@Success		200
+//	@Failure		400
+//	@Router			/ [get]
 func exampleHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World")
 }
