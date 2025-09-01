@@ -28,6 +28,30 @@ const docTemplate = `{
                     "query"
                 ],
                 "summary": "Query the backend for relevant events surrounding a coordinate",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "format": "float64",
+                        "description": "latitude of the place",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "format": "float64",
+                        "description": "longitude of the place",
+                        "name": "long",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "1 for present, 0 for past, any for all",
+                        "name": "current",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"

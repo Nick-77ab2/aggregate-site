@@ -12,6 +12,23 @@ paths:
     get:
       description: Consume lat, long, and current params, and return a list of events
         that are separated by categories
+      parameters:
+      - description: latitude of the place
+        format: float64
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: longitude of the place
+        format: float64
+        in: query
+        name: long
+        required: true
+        type: number
+      - description: 1 for present, 0 for past, any for all
+        in: query
+        name: current
+        type: integer
       produces:
       - application/json
       responses:
