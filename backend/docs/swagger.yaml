@@ -8,6 +8,21 @@ info:
   title: aggregate-site-backend
   version: "1.0"
 paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: Testing API doc
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Example API
+      tags:
+      - example
   /query:
     get:
       description: Consume lat, long, and current params, and return a list of events
