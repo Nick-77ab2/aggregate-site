@@ -2,7 +2,6 @@ package rss
 
 import (
 	"aggregate-site/backend/internal/database"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -50,11 +49,11 @@ func Fetch(db database.Database) error {
 	for _, item := range items {
 		lat, err := strconv.ParseFloat(findExtensionValue(item, "geo:Point:lat"), 64)
 		if err != nil {
-			log.Println("lat:", err)
+			return err
 		}
 		long, err := strconv.ParseFloat(findExtensionValue(item, "geo:Point:long"), 64)
 		if err != nil {
-			log.Println("long:", err)
+			return err
 		}
 
 		// format the entry
@@ -69,7 +68,6 @@ func Fetch(db database.Database) error {
 			Longitude:  long,
 		}
 		entries = append(entries, entry)
-		log.Println(entry)
 
 		fromDate, err := time.Parse(
 			time.RFC1123,
