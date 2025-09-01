@@ -34,6 +34,29 @@ type QueryResponse struct {
 	ToDate     string   `json:"todate"`
 }
 
+type QueryResponseCategories struct {
+	DR []QueryResponse
+	EQ []QueryResponse
+	FL []QueryResponse
+	TC []QueryResponse
+	WF []QueryResponse
+}
+
+func (qrc *QueryResponseCategories) insert(item QueryResponse) {
+	switch item.Type {
+	case "DR":
+		qrc.DR = append(qrc.DR, item)
+	case "EQ":
+		qrc.EQ = append(qrc.EQ, item)
+	case "FL":
+		qrc.FL = append(qrc.FL, item)
+	case "TC":
+		qrc.TC = append(qrc.TC, item)
+	default:
+		qrc.WF = append(qrc.WF, item)
+	}
+}
+
 func parseQueryResult(res database.QueryResult) QueryResponse {
 	var qr QueryResponse
 	qr.DisasterID = res.DisasterID
@@ -146,11 +169,11 @@ func QueryHandler(db database.Database) http.HandlerFunc {
 			usableSet = rawEntries
 		}
 
-		res := []QueryResponse{}
+		var res QueryResponseCategories
 		for _, rawEntry := range usableSet {
 			var result QueryResponse
 			result = parseQueryResult(rawEntry)
-			res = append(res, result)
+			res.insert(result)
 		}
 
 		enc := json.NewEncoder(w)
