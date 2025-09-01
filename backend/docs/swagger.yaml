@@ -7,5 +7,19 @@ info:
     name: MIT
   title: aggregate-site-backend
   version: "1.0"
-paths: {}
+paths:
+  /query:
+    get:
+      description: Consume lat, long, and current params, and return a list of events
+        that are separated by categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: Query the backend for relevant events surrounding a coordinate
+      tags:
+      - query
 swagger: "2.0"

@@ -1,9 +1,10 @@
 package main
 
 import (
+	"aggregate-site/backend/controller"
+	_ "aggregate-site/backend/docs"
 	"aggregate-site/backend/internal/database"
 	"aggregate-site/backend/internal/rss"
-	_ "aggregate-site/backend/docs"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,12 +17,12 @@ import (
 
 var db database.Database
 
-// @title aggregate-site-backend
-// @version 1.0
-// @description Backend for the aggregate-site project
-// @host localhost:5000
-// @BasePath /
-// @license.name MIT
+//	@title			aggregate-site-backend
+//	@version		1.0
+//	@description	Backend for the aggregate-site project
+//	@host			localhost:5000
+//	@BasePath		/
+//	@license.name	MIT
 
 func main() {
 	// loading envvar
@@ -53,23 +54,15 @@ func main() {
 
 	// Router
 	mux.HandleFunc("GET /", exampleHandler)
-	mux.HandleFunc("GET /query", queryHandler)
+	mux.HandleFunc("GET /query", controller.QueryHandler(db))
 	mux.HandleFunc("GET /docs/", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:5000/docs/doc.json"),
 	))
-	
+
 	log.Println("Server is serving at http://localhost:5000")
 	log.Fatal(http.ListenAndServe(":5000", mux))
 }
 
 func exampleHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World")
-}
-
-func queryHandler(w http.ResponseWriter, r *http.Request) {
-	lat := r.URL.Query().Get("lat")
-	long := r.URL.Query().Get("long")
-	current := r.URL.Query().Get("current")
-
-	fmt.Fprintln(w, lat, long, current)
 }
