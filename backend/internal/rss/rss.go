@@ -21,7 +21,7 @@ func findKeyValue(ext map[string][]ext.Extension, keys []string) string {
 	valArr := ext[key]
 	// for now there is no multiple extensions in one key,
 	// so we just take first item
-	val := valArr[0] 
+	val := valArr[0]
 	if len(remainingKeys) == 0 {
 		return val.Value
 	}
@@ -30,14 +30,14 @@ func findKeyValue(ext map[string][]ext.Extension, keys []string) string {
 
 func findExtensionValue(item *gofeed.Item, key string) string {
 	keys := strings.Split(key, ":")
-	namespace, keys := keys[0], keys[1:] 
+	namespace, keys := keys[0], keys[1:]
 
-	ext := item.Extensions[namespace]	// find namespace
+	ext := item.Extensions[namespace] // find namespace
 	return findKeyValue(ext, keys)
 }
 
 func Fetch(db database.Database) error {
-	var err error 
+	var err error
 
 	fp := gofeed.NewParser()
 	feed, _ := fp.ParseURL(feedURL)
@@ -47,7 +47,7 @@ func Fetch(db database.Database) error {
 	entries := []database.Entry{}
 	disasters := []database.Disaster{}
 	// TODO:rewrite this for concurrency
-	for _, item := range items { 
+	for _, item := range items {
 		lat, err := strconv.ParseFloat(findExtensionValue(item, "geo:Point:lat"), 64)
 		if err != nil {
 			log.Println("lat:", err)
@@ -58,15 +58,15 @@ func Fetch(db database.Database) error {
 		}
 
 		// format the entry
-		var entry = database.Entry {
+		var entry = database.Entry{
 			DisasterID: item.GUID,
-			Title: item.Title,
-			Summary: item.Description,
-			Timestamp: item.PublishedParsed.Unix(),
+			Title:      item.Title,
+			Summary:    item.Description,
+			Timestamp:  item.PublishedParsed.Unix(),
 			AlertLevel: findExtensionValue(item, "gdacs:episodealertlevel"),
-			Countries: findExtensionValue(item, "gdacs:country"),
-			Latitude: lat, 
-			Longitude: long,
+			Countries:  findExtensionValue(item, "gdacs:country"),
+			Latitude:   lat,
+			Longitude:  long,
 		}
 		entries = append(entries, entry)
 		log.Println(entry)
@@ -86,15 +86,15 @@ func Fetch(db database.Database) error {
 		if err != nil {
 			return err
 		}
-		
+
 		// format the disaster
-		var disaster = database.Disaster {
+		var disaster = database.Disaster{
 			DisasterID: item.GUID,
-			Name: findExtensionValue(item, "gdacs:eventname"),
-			Type: findExtensionValue(item, "gdacs:eventtype"),
-			EventID: findExtensionValue(item, "gdacs:eventid"),
-			FromDate: fromDate.Unix(),
-			ToDate: toDate.Unix(),
+			Name:       findExtensionValue(item, "gdacs:eventname"),
+			Type:       findExtensionValue(item, "gdacs:eventtype"),
+			EventID:    findExtensionValue(item, "gdacs:eventid"),
+			FromDate:   fromDate.Unix(),
+			ToDate:     toDate.Unix(),
 		}
 		disasters = append(disasters, disaster)
 	}

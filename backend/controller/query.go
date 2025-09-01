@@ -20,9 +20,9 @@ const (
 //	@Summary		Query the backend for relevant events surrounding a coordinate
 //	@Description	Consume lat, long, and current params, and return a list of events that are separated by categories
 //	@Tags			query
-//	@Params			lat query float64 true "latitude of the place"
-//	@Params			long query float64 true "longitude of the place"
-//	@Params			current query int false "1 for present, 0 for past, any for all"
+//	@Param			lat query float64 true "latitude of the place"
+//	@Param			long query float64 true "longitude of the place"
+//	@Param			current query int false "1 for present, 0 for past, any for all"
 //	@Produce		json
 //	@Success		200
 //	@Failure		400
@@ -57,8 +57,14 @@ func QueryHandler(db database.Database) http.HandlerFunc {
 			isCurrent = ALL
 		}
 
-		rawEntries := db.Query(lat, long)
-		//	TODO: do the formatting here
-		log.Println(isCurrent, rawEntries)
+		rawEntries, err := db.Query(lat, long)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(400)
+			return
+		}
+
+		// TODO: do the formatting here
+		log.Println(lat, long, isCurrent, rawEntries)
 	}
 }
